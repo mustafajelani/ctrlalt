@@ -1,12 +1,25 @@
 export type DayHours = { day: number; name: string; open: string | null; close: string | null };
 
+const FALLBACK_URL = "https://www.ctrlaltdelllc.com";
+
+/** Accepts "https://x.com", "x.com" or an empty value; falls back to Vercel's production domain. */
+function resolveSiteUrl() {
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || "").trim();
+  if (!raw) return FALLBACK_URL;
+  try {
+    return new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`).origin;
+  } catch {
+    return FALLBACK_URL;
+  }
+}
+
 export const site = {
   name: "CTRL ALT DEL",
   shortName: "Ctrl Alt Del",
   tagline: "Your local tech experts",
   description:
     "Phone, laptop, tablet and game console repair in Kensington, Philadelphia. Screen replacements, batteries, broken keys, upgrades and tech advice, plus laptops, phones and electronics for sale.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ctrlaltdelllc.com").replace(/\/$/, ""),
+  url: resolveSiteUrl(),
   phone: { display: "(215) 279-7222", href: "tel:+12152797222", e164: "+12152797222" },
   address: {
     street: "319 E Allegheny Ave",
