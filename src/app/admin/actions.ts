@@ -67,6 +67,21 @@ export async function updateOrder(formData: FormData) {
   const id = text(formData.get("id"), 20);
   const status = text(formData.get("status"), 20);
   if (!(orderStatuses as readonly string[]).includes(status)) return;
-  await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
+  await sql`UPDATE orders SET status = ${status}, updated_at = now() WHERE id = ${id}`;
+  revalidatePath("/admin");
+}
+
+export async function deleteTicket(formData: FormData) {
+  await requireAdmin();
+  if (!sql) return;
+  // ticket_events rows are removed by ON DELETE CASCADE.
+  await sql`DELETE FROM tickets WHERE id = ${text(formData.get("id"), 20)}`;
+  revalidatePath("/admin");
+}
+
+export async function deleteOrder(formData: FormData) {
+  await requireAdmin();
+  if (!sql) return;
+  await sql`DELETE FROM orders WHERE id = ${text(formData.get("id"), 20)}`;
   revalidatePath("/admin");
 }
