@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Electrolize } from "next/font/google";
+import { Chakra_Petch, Electrolize } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { MobileActionBar } from "@/components/layout/MobileActionBar";
@@ -10,6 +10,7 @@ import { serviceAreas, site } from "@/lib/site";
 import "./globals.css";
 
 const sans = Electrolize({ subsets: ["latin"], weight: "400", variable: "--font-electrolize", display: "swap" });
+const display = Chakra_Petch({ subsets: ["latin"], weight: "700", variable: "--font-chakra", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -72,7 +73,7 @@ const localBusiness = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={sans.variable} suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <script

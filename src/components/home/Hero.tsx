@@ -14,14 +14,14 @@ export function Hero() {
       <div className="absolute top-1/3 -right-40 size-[40rem] rounded-full bg-signal/10 blur-[120px]" aria-hidden />
 
       {/* Phone order: pitch -> board -> stats (board lands in the first screen). Desktop: pitch + stats left, board right. */}
-      <div className="container-x relative grid gap-10 pt-8 pb-16 sm:pt-16 sm:pb-20 lg:grid-cols-[1.02fr_1fr] lg:gap-x-10 lg:gap-y-12 lg:pt-20 lg:pb-28">
+      <div className="container-x relative grid gap-10 pt-8 pb-16 sm:pt-16 sm:pb-20 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,1fr)] lg:gap-x-10 lg:gap-y-12 lg:pt-20 lg:pb-28">
         <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
           <p className="eyebrow hero-fade" style={d(0)}>
             {site.address.neighborhood} · Philadelphia
           </p>
 
-          {/* "TECH EXPERTS" is ~7.1em wide in Electrolize; sizes keep it on one line per column width. */}
-          <h1 className="display mt-5 text-[clamp(2.25rem,calc(12.4vw_-_0.25rem),4.75rem)] sm:mt-6 lg:text-[clamp(3rem,calc(6.8vw_-_0.5rem),4.75rem)]">
+          {/* "TECH EXPERTS" is ~7.2em wide in Chakra Petch Bold; sizes keep it on one line per column width. */}
+          <h1 className="display mt-5 text-[clamp(2.25rem,calc(13.5vw_-_0.25rem),5rem)] sm:mt-6 lg:text-[clamp(3rem,calc(6.75vw_-_0.5rem),4.75rem)]">
             <span className="hero-line">
               <span style={d(0.08)}>Your local</span>
             </span>
@@ -51,7 +51,7 @@ export function Hero() {
 
         <div className="hero-fade lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center" style={d(0.25)}>
           <HeroBoard />
-          <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row sm:justify-between" aria-hidden>
+          <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-y-4" aria-hidden>
             <div className="flex items-center gap-2.5 font-mono text-fog">
               <kbd className="keycap" style={d(0.55)}>
                 Ctrl
