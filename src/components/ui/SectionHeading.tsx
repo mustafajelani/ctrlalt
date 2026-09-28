@@ -17,10 +17,10 @@ export function SectionHeading({
   return (
     <div className={centered ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
       <p data-reveal className="eyebrow">
-        {index && <span className="opacity-70">{index} /</span>}
+        {index && <span>{index} /</span>}
         {eyebrow}
       </p>
-      <Tag data-reveal style={{ "--i": 1 } as React.CSSProperties} className="display mt-4 text-4xl sm:text-5xl lg:text-6xl">
+      <Tag data-reveal style={{ "--i": 1 } as React.CSSProperties} className="display mt-4 text-[2rem] sm:text-5xl lg:text-[3.5rem]">
         {title}
       </Tag>
       {intro && (

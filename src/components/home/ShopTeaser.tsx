@@ -7,7 +7,7 @@ import { products } from "@/content/products";
 export function ShopTeaser() {
   const featured = products.filter((p) => p.featured).slice(0, 4);
   return (
-    <section className="border-t border-line bg-ink-2 py-20 sm:py-28" aria-labelledby="shop-title">
+    <section className="border-t border-line bg-ink-2 py-16 sm:py-28" aria-labelledby="shop-title">
       <div className="container-x">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
@@ -20,7 +20,7 @@ export function ShopTeaser() {
             Shop all products <ArrowUpRight size={16} weight="bold" aria-hidden />
           </Link>
         </div>
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-14 sm:gap-5 lg:grid-cols-4">
           {featured.map((p, i) => (
             <ProductCard key={p.slug} product={p} index={i} />
           ))}

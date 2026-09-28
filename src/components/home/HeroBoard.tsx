@@ -73,7 +73,7 @@ export function HeroBoard() {
               ))}
               <rect x={c.x} y={c.y} width="112" height="40" rx="7" className="chip-box" style={{ "--d": `${2.1 + i * 0.1}s` } as React.CSSProperties} />
               <circle cx={c.x + 14} cy={c.y + 20} r="3.5" className="led" style={{ "--d": `${2.3 + i * 0.1}s` } as React.CSSProperties} />
-              <text x={c.x + 62} y={c.y + 24.5} textAnchor="middle" fill="#a1a1aa" fontSize="11" letterSpacing="2" style={{ fontFamily: "var(--font-plex-mono)" }}>
+              <text x={c.x + 62} y={c.y + 24.5} textAnchor="middle" fill="#a1a1aa" fontSize="11" letterSpacing="2" style={{ fontFamily: "var(--font-electrolize)" }}>
                 {c.label}
               </text>
             </g>

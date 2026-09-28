@@ -39,7 +39,7 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-line bg-ink-2">
+    <footer className="relative overflow-hidden border-t border-line bg-ink-2 pb-24 lg:pb-0">
       <LogoMark className="pointer-events-none absolute -right-24 -bottom-28 hidden w-[34rem] text-white/[0.025] lg:block" strokeWidth={9} />
 
       <div className="container-x relative grid gap-12 py-16 lg:grid-cols-[1.3fr_2fr] lg:gap-16">

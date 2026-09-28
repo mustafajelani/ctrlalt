@@ -26,7 +26,7 @@ export default function AboutPage() {
     <>
       <PageHero crumb="About" title="About the shop" intro="Your local tech experts on East Allegheny Avenue. Fast and reliable repairs for all devices." />
 
-      <section className="container-x py-20 sm:py-28">
+      <section className="container-x py-16 sm:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div data-reveal="scale" className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-line sm:aspect-[4/3] lg:aspect-[4/5]">
             <Image src={images.shopFloor.src} alt={images.shopFloor.alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
@@ -52,7 +52,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="border-y border-line bg-ink-2 py-20 sm:py-28">
+      <section className="border-y border-line bg-ink-2 py-16 sm:py-28">
         <div className="container-x">
           <SectionHeading index="02" eyebrow="How we work" title="What you can count on" align="center" />
           <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

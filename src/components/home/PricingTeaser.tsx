@@ -18,7 +18,7 @@ export function PricingTeaser() {
   }));
 
   return (
-    <section className="container-x py-20 sm:py-28" aria-labelledby="pricing-title">
+    <section className="container-x py-16 sm:py-28" aria-labelledby="pricing-title">
       <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
         <div>
           <SectionHeading
@@ -32,22 +32,24 @@ export function PricingTeaser() {
           </Link>
         </div>
 
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4">
           {rows.map(({ label, icon: Icon, row, device }, i) => (
             <li key={label} data-reveal style={{ "--i": i } as React.CSSProperties}>
               <Link
                 href={`/book?device=${device}&issue=${row?.issue ?? "other"}&repair=${encodeURIComponent(label)}`}
-                className="group card relative flex h-full flex-col overflow-hidden p-6 transition-colors duration-300 hover:border-signal/60"
+                aria-label={`${label}, from ${row?.from != null ? money(row.from) : "a quote"}. Book this repair`}
+                className="group card relative flex h-full flex-col overflow-hidden p-4 transition-colors duration-300 hover:border-signal/60 sm:p-6"
               >
                 <span className="absolute -top-16 -right-16 size-40 rounded-full bg-signal/0 blur-2xl transition-colors duration-500 group-hover:bg-signal/20" aria-hidden />
-                <Icon size={30} className="text-signal" aria-hidden />
-                <span className="mt-6 text-sm text-fog">{label}</span>
-                <span className="mt-1 flex items-baseline gap-2">
+                <Icon size={26} className="text-signal sm:size-[30px]" aria-hidden />
+                <span className="mt-4 text-sm text-fog sm:mt-6">{label}</span>
+                <span className="mt-1 flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
                   <span className="text-xs tracking-wider text-fog uppercase">from</span>
-                  <span className="display text-5xl">{row?.from != null ? money(row.from) : "Quote"}</span>
+                  <span className="display text-4xl sm:text-5xl">{row?.from != null ? money(row.from) : "Quote"}</span>
                 </span>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-signal-hot">
-                  Book this repair
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm text-signal-hot sm:mt-5">
+                  <span className="sm:hidden">Book</span>
+                  <span className="hidden sm:inline">Book this repair</span>
                   <ArrowUpRight size={14} weight="bold" className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
                 </span>
               </Link>

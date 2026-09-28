@@ -7,7 +7,7 @@ import { coreServices } from "@/content/services";
 
 export function ServicesGrid() {
   return (
-    <section className="container-x py-20 sm:py-28" aria-labelledby="services-title">
+    <section className="container-x py-16 sm:py-28" aria-labelledby="services-title">
       <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
         <SectionHeading
           index="01"
@@ -20,28 +20,29 @@ export function ServicesGrid() {
         </Link>
       </div>
 
-      <div className="mt-14 grid gap-5 md:grid-cols-3">
+      {/* Phones: swipeable row with the next card peeking in. md+: three-column grid. */}
+      <div className="-mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:mx-0 md:mt-14 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden">
         {coreServices.map((s, i) => (
           <article
             key={s.id}
-            data-reveal
+            data-reveal="fade"
             style={{ "--i": i } as React.CSSProperties}
-            className="group card relative flex flex-col overflow-hidden transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-signal/60"
+            className="group card relative flex w-[82%] shrink-0 snap-start flex-col overflow-hidden transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-signal/60 sm:w-[60%] md:w-auto"
           >
             <div className="relative aspect-[16/11] overflow-hidden">
               <Image
                 src={s.image.src}
                 alt={s.image.alt}
                 fill
-                sizes="(min-width: 768px) 33vw, 100vw"
+                sizes="(min-width: 768px) 33vw, 82vw"
                 className="object-cover transition-transform duration-[1.2s] ease-out-expo group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-panel via-panel/20 to-transparent" />
               <span className="absolute top-4 left-4 font-mono text-xs tracking-[0.2em] text-white/80">[{s.code}]</span>
             </div>
-            <div className="relative flex flex-1 flex-col p-6 pt-2">
+            <div className="relative flex flex-1 flex-col p-5 pt-2 sm:p-6 sm:pt-2">
               <span className="absolute -top-px left-6 h-px w-0 bg-signal transition-[width] duration-700 ease-out-expo group-hover:w-[calc(100%-3rem)]" aria-hidden />
-              <h3 className="display text-3xl">
+              <h3 className="display text-2xl sm:text-3xl">
                 <Link href={s.href} className="after:absolute after:inset-0 after:content-['']">
                   {s.title}
                 </Link>
@@ -62,7 +63,7 @@ export function ServicesGrid() {
         ))}
       </div>
 
-      <div data-reveal className="mt-14 border-y border-line py-8">
+      <div data-reveal className="mt-10 border-y border-line py-8 md:mt-14">
         <p className="text-center font-mono text-xs tracking-[0.18em] text-fog uppercase">We fix all major brands</p>
         <ul className="mt-7 grid grid-cols-3 items-center justify-items-center gap-x-6 gap-y-8 sm:grid-cols-5 lg:grid-cols-7" aria-label="Brands we repair">
           {brandLogos.map((b) => {
@@ -75,7 +76,7 @@ export function ServicesGrid() {
                   aria-label={b.name}
                   fill="currentColor"
                   style={{ height, width: height * b.aspect }}
-                  className="text-fog transition-colors duration-300 hover:text-white"
+                  className="text-fog"
                 >
                   <path d={b.d} />
                 </svg>

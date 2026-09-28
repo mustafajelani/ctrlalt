@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Electrolize, IBM_Plex_Mono, Saira_Condensed } from "next/font/google";
+import { Electrolize } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { MobileActionBar } from "@/components/layout/MobileActionBar";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { CartProvider } from "@/components/shop/CartProvider";
 import { RevealObserver } from "@/components/ui/RevealObserver";
 import { serviceAreas, site } from "@/lib/site";
 import "./globals.css";
 
-const display = Saira_Condensed({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-saira", display: "swap" });
 const sans = Electrolize({ subsets: ["latin"], weight: "400", variable: "--font-electrolize", display: "swap" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -73,7 +72,7 @@ const localBusiness = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${display.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" className={sans.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <script
@@ -86,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main id="main">{children}</main>
           <Footer />
+          <MobileActionBar />
           <CartDrawer />
         </CartProvider>
         <RevealObserver />

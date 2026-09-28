@@ -3,7 +3,7 @@ import { processSteps } from "@/content/services";
 
 export function ProcessSteps() {
   return (
-    <section className="relative overflow-hidden border-y border-line bg-ink-2 py-20 sm:py-28" aria-labelledby="process-title">
+    <section className="relative overflow-hidden border-y border-line bg-ink-2 py-16 sm:py-28" aria-labelledby="process-title">
       <div className="pcb-grid absolute inset-0 opacity-50" aria-hidden />
       <div className="container-x relative">
         <SectionHeading

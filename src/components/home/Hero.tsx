@@ -13,13 +13,15 @@ export function Hero() {
       <div className="pcb-grid pcb-fade absolute inset-0 opacity-70" aria-hidden />
       <div className="absolute top-1/3 -right-40 size-[40rem] rounded-full bg-signal/10 blur-[120px]" aria-hidden />
 
-      <div className="container-x relative grid items-center gap-14 pt-12 pb-20 sm:pt-16 lg:grid-cols-[1.02fr_1fr] lg:gap-10 lg:pt-20 lg:pb-28">
-        <div>
+      {/* Phone order: pitch -> board -> stats (board lands in the first screen). Desktop: pitch + stats left, board right. */}
+      <div className="container-x relative grid gap-10 pt-8 pb-16 sm:pt-16 sm:pb-20 lg:grid-cols-[1.02fr_1fr] lg:gap-x-10 lg:gap-y-12 lg:pt-20 lg:pb-28">
+        <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
           <p className="eyebrow hero-fade" style={d(0)}>
             {site.address.neighborhood} · Philadelphia
           </p>
 
-          <h1 className="display mt-6 text-[clamp(3.4rem,10vw,6.9rem)]">
+          {/* "TECH EXPERTS" is ~7.1em wide in Electrolize; sizes keep it on one line per column width. */}
+          <h1 className="display mt-5 text-[clamp(2.25rem,calc(12.4vw_-_0.25rem),4.75rem)] sm:mt-6 lg:text-[clamp(3rem,calc(6.8vw_-_0.5rem),4.75rem)]">
             <span className="hero-line">
               <span style={d(0.08)}>Your local</span>
             </span>
@@ -30,47 +32,24 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="hero-fade mt-7 max-w-xl text-lg leading-relaxed text-mist sm:text-xl" style={d(0.35)}>
-            Fast, reliable repairs for phones, laptops, tablets and consoles. Cracked screens, dead batteries and broken keys,
-            fixed right here on East Allegheny Avenue.
+          <p className="hero-fade mt-5 max-w-xl text-lg leading-relaxed text-mist sm:mt-7 sm:text-xl" style={d(0.35)}>
+            Fast, reliable repairs for phones, laptops, tablets and consoles.
+            <span className="hidden sm:inline"> Cracked screens, dead batteries and broken keys, fixed right here on East Allegheny Avenue.</span>
           </p>
 
-          <div className="hero-fade mt-9 flex flex-wrap gap-3" style={d(0.48)}>
-            <Link href="/book" className="btn btn-primary h-13 px-7 text-base">
+          <div className="hero-fade mt-7 flex gap-3 sm:mt-9" style={d(0.48)}>
+            <Link href="/book" className="btn btn-primary h-13 flex-[1.4] px-5 text-base sm:flex-none sm:px-7">
               Book a repair <ArrowRight size={18} weight="bold" aria-hidden />
             </Link>
-            <a href={site.phone.href} className="btn btn-ghost h-13 px-6 text-base">
-              <Phone size={18} aria-hidden /> {site.phone.display}
+            <a href={site.phone.href} aria-label={`Call ${site.phone.display}`} className="btn btn-ghost h-13 flex-1 px-5 text-base sm:flex-none sm:px-6">
+              <Phone size={18} aria-hidden />
+              <span className="sm:hidden">Call</span>
+              <span className="hidden sm:inline">{site.phone.display}</span>
             </a>
           </div>
-
-          <dl className="hero-fade mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-7" style={d(0.6)}>
-            <div>
-              <dt className="sr-only">Google rating</dt>
-              <dd>
-                <span className="display text-2xl sm:text-3xl">{site.rating.value}</span>
-                <StarRating value={site.rating.value} size={14} />
-                <span className="mt-1 block text-xs text-fog">Google rating</span>
-              </dd>
-            </div>
-            <div>
-              <dt className="sr-only">Open</dt>
-              <dd>
-                <span className="display text-2xl sm:text-3xl">6 days</span>
-                <span className="mt-1 block text-xs text-fog">a week, walk-ins welcome</span>
-              </dd>
-            </div>
-            <div>
-              <dt className="sr-only">Devices</dt>
-              <dd>
-                <span className="display text-2xl sm:text-3xl">All brands</span>
-                <span className="mt-1 block text-xs text-fog">Apple, Samsung, Dell, Sony & more</span>
-              </dd>
-            </div>
-          </dl>
         </div>
 
-        <div className="hero-fade" style={d(0.25)}>
+        <div className="hero-fade lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center" style={d(0.25)}>
           <HeroBoard />
           <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row sm:justify-between" aria-hidden>
             <div className="flex items-center gap-2.5 font-mono text-fog">
@@ -95,6 +74,31 @@ export function Hero() {
             </p>
           </div>
         </div>
+
+        <dl className="hero-fade grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-7 lg:col-start-1 lg:row-start-2 lg:self-start" style={d(0.6)}>
+          <div>
+            <dt className="sr-only">Google rating</dt>
+            <dd>
+              <span className="display text-2xl sm:text-3xl">{site.rating.value}</span>
+              <StarRating value={site.rating.value} size={14} />
+              <span className="mt-1 block text-xs text-fog">Google rating</span>
+            </dd>
+          </div>
+          <div>
+            <dt className="sr-only">Open</dt>
+            <dd>
+              <span className="display text-2xl sm:text-3xl">6 days</span>
+              <span className="mt-1 block text-xs text-fog">a week, walk-ins welcome</span>
+            </dd>
+          </div>
+          <div>
+            <dt className="sr-only">Devices</dt>
+            <dd>
+              <span className="display text-2xl sm:text-3xl">All brands</span>
+              <span className="mt-1 block text-xs text-fog">Apple, Samsung, Dell, Sony & more</span>
+            </dd>
+          </div>
+        </dl>
       </div>
     </section>
   );

@@ -16,7 +16,7 @@ export function CtaBand({
   body?: string;
 }) {
   return (
-    <section className="container-x py-20 sm:py-28">
+    <section className="container-x py-16 sm:py-28">
       <div data-reveal="scale" className="relative isolate overflow-hidden rounded-3xl border border-line">
         <Image src={images.motherboard.src} alt="" fill sizes="(min-width: 1216px) 1152px, 100vw" className="-z-20 object-cover" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/90 to-ink/40" />

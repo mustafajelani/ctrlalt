@@ -21,9 +21,9 @@
 }
 
 @theme inline {
-  --font-display: var(--font-saira), "Arial Narrow", sans-serif;
+  --font-display: var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-mono: var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ---------- Base ---------- */
@@ -100,8 +100,8 @@
     font-family: var(--font-display);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.005em;
-    line-height: 0.95;
+    letter-spacing: -0.01em;
+    line-height: 1;
   }
 
   .eyebrow {
@@ -239,7 +239,8 @@
     width: 100%;
     min-height: 3rem;
     padding: 0.7rem 0.9rem;
-    border: 1px solid var(--color-line-2);
+    /* Field boundaries need 3:1 against both the field and card backgrounds (WCAG 1.4.11). */
+    border: 1px solid #6b6b74;
     border-radius: 0.55rem;
     background: var(--color-ink-2);
     color: #fff;
@@ -248,10 +249,10 @@
       border-color 0.2s,
       box-shadow 0.2s;
     &::placeholder {
-      color: #71717a;
+      color: #8b8b94;
     }
     &:hover {
-      border-color: #52525b;
+      border-color: #8b8b94;
     }
     &:focus {
       outline: none;
@@ -405,6 +406,12 @@
 html:has(dialog[open]) {
   overflow: hidden;
 }
+/* Keep focused/anchored content clear of the phone Call/Book bar (WCAG 2.4.11). */
+@media (width < 64rem) {
+  html {
+    scroll-padding-bottom: 6rem;
+  }
+}
 dialog.sheet[open] [data-stagger] {
   animation: fade-up 0.6s var(--ease-out-expo) calc(0.12s + var(--i, 0) * 0.045s) both;
 }
@@ -544,12 +551,12 @@ html:not(.js) .trace-grow-y {
   animation: glow-breathe 5s ease-in-out 2.4s infinite both;
 }
 
+/* Clip-path reveal works with proportional fonts (no ch-width math). */
 .typing {
   display: inline-block;
-  overflow: hidden;
   white-space: nowrap;
   vertical-align: bottom;
-  width: 0;
+  clip-path: inset(0 100% 0 0);
   animation: typing 1.3s steps(var(--chars, 30)) var(--d, 2.4s) forwards;
 }
 .caret {
@@ -559,7 +566,9 @@ html:not(.js) .trace-grow-y {
   margin-left: 2px;
   vertical-align: -0.2em;
   background: var(--color-signal-hot);
-  animation: caret-blink 1s steps(1) infinite;
+  opacity: 0;
+  /* Own variable: --d is inherited from animated ancestors and would start the blink too early. */
+  animation: caret-blink 1s steps(1) var(--caret-d, 3.8s) infinite;
 }
 
 .ping {
@@ -653,10 +662,13 @@ html:not(.js) .trace-grow-y {
 }
 @keyframes typing {
   to {
-    width: calc(var(--chars, 30) * 1ch);
+    clip-path: inset(0 0 0 0);
   }
 }
 @keyframes caret-blink {
+  0% {
+    opacity: 1;
+  }
   50% {
     opacity: 0;
   }

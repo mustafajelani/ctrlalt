@@ -2,11 +2,12 @@ import { Clock, MapPin, NavigationArrow, Phone } from "@phosphor-icons/react/dis
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { OpenStatus } from "@/components/ui/OpenStatus";
 import { hoursLabel } from "@/lib/hours";
-import { fullAddress, serviceAreas, site } from "@/lib/site";
+import { serviceAreas, site } from "@/lib/site";
+import { MapEmbed } from "./MapEmbed";
 
 export function ServiceArea({ index = "05" }: { index?: string }) {
   return (
-    <section className="container-x py-20 sm:py-28" aria-labelledby="area-title">
+    <section className="container-x py-16 sm:py-28" aria-labelledby="area-title">
       <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.15fr]">
         <div>
           <SectionHeading
@@ -55,14 +56,8 @@ export function ServiceArea({ index = "05" }: { index?: string }) {
           </div>
         </div>
 
-        <div data-reveal="scale" className="relative overflow-hidden rounded-3xl border border-line bg-panel lg:sticky lg:top-28">
-          <iframe
-            title={`Map showing CTRL ALT DEL at ${fullAddress}`}
-            src={site.mapEmbedUrl}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="block aspect-[4/5] w-full [filter:invert(92%)_hue-rotate(180deg)_saturate(0.55)_contrast(0.95)] sm:aspect-[4/3] lg:aspect-[4/5]"
-          />
+        <div data-reveal="scale" className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-line bg-panel lg:sticky lg:top-28 lg:aspect-[4/5]">
+          <MapEmbed />
           <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-signal/20 ring-inset" aria-hidden />
         </div>
       </div>

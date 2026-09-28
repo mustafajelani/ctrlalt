@@ -87,10 +87,10 @@ export default function ServicesPage() {
               id={d.device}
               key={d.device}
               data-reveal
-              className="group card grid overflow-hidden transition-colors duration-300 hover:border-line-2 md:grid-cols-[0.9fr_1.1fr]"
+              className="card grid overflow-hidden md:grid-cols-[0.9fr_1.1fr]"
             >
               <div className={`relative aspect-[16/10] md:aspect-auto md:min-h-80 ${i % 2 ? "md:order-2" : ""}`}>
-                <Image src={d.image.src} alt={d.image.alt} fill sizes="(min-width: 768px) 45vw, 100vw" className="object-cover transition-transform duration-[1.2s] ease-out-expo group-hover:scale-[1.03]" />
+                <Image src={d.image.src} alt={d.image.alt} fill sizes="(min-width: 768px) 45vw, 100vw" className="object-cover" />
               </div>
               <div className="flex flex-col p-7 sm:p-10">
                 <span className="font-mono text-xs tracking-[0.2em] text-signal-hot">0{i + 1}</span>
@@ -119,7 +119,7 @@ export default function ServicesPage() {
 
       <ProcessSteps />
 
-      <section className="container-x py-20 sm:py-28" aria-labelledby="extras-title">
+      <section className="container-x py-16 sm:py-28" aria-labelledby="extras-title">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div data-reveal="scale" className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-line">
             <Image src={images.soldering.src} alt={images.soldering.alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />

@@ -80,7 +80,7 @@ export function PricingTabs() {
           </thead>
           <tbody className="divide-y divide-line">
             {group.rows.map((row) => (
-              <tr key={row.name} className="group transition-colors hover:bg-panel-2">
+              <tr key={row.name}>
                 <th scope="row" className="px-5 py-5 font-normal sm:px-7">
                   <span className="block font-semibold">{row.name}</span>
                   {row.note && <span className="mt-0.5 block text-sm text-fog">{row.note}</span>}
@@ -95,7 +95,7 @@ export function PricingTabs() {
                 <td className="hidden px-7 py-5 text-right sm:table-cell">
                   <Link
                     href={`/book?device=${group.device}&issue=${row.issue}&repair=${encodeURIComponent(row.name)}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-signal-hot opacity-70 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                    className="link-arrow text-sm"
                     aria-label={`Book ${group.label.toLowerCase()} ${row.name.toLowerCase()}`}
                   >
                     Book <ArrowRight size={14} weight="bold" aria-hidden />

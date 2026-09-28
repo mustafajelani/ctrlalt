@@ -22,22 +22,23 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           src={product.image.src}
           alt={product.image.alt}
           fill
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          sizes="(min-width: 1024px) 25vw, 50vw"
           className="object-cover transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
         />
-        <span className={`badge absolute top-3 left-3 backdrop-blur ${conditionStyle[product.condition]}`}>{product.condition}</span>
+        <span className={`badge absolute top-2.5 left-2.5 backdrop-blur sm:top-3 sm:left-3 ${conditionStyle[product.condition]}`}>{product.condition}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <h3 className="font-semibold leading-snug">
+      {/* Phones show two cards per row: summary hidden, price above a full-width button. */}
+      <div className="flex flex-1 flex-col gap-2 p-3.5 sm:gap-3 sm:p-5">
+        <h3 className="line-clamp-2 text-sm leading-snug sm:text-base">
           <Link href={`/shop/${product.slug}`} className="after:absolute after:inset-0 after:content-[''] hover:text-signal-hot">
             {product.name}
           </Link>
         </h3>
-        <p className="line-clamp-2 text-sm text-fog">{product.summary}</p>
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-          <span className="font-mono text-lg tabular-nums">{money(product.price)}</span>
+        <p className="line-clamp-2 hidden text-sm text-fog sm:block">{product.summary}</p>
+        <div className="mt-auto flex flex-col gap-2 pt-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pt-2">
+          <span className="font-mono text-base tabular-nums sm:text-lg">{money(product.price)}</span>
           <div className="relative z-10">
-            <AddToCartButton slug={product.slug} inStock={inStock} className="btn btn-ghost btn-sm" />
+            <AddToCartButton slug={product.slug} inStock={inStock} className="btn btn-ghost btn-sm w-full px-3 sm:w-auto sm:px-4" />
           </div>
         </div>
       </div>
