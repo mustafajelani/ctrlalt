@@ -1,16 +1,17 @@
 import { ArrowUpRight, Check } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SectionHeading, type HeadingTier } from "@/components/ui/SectionHeading";
 import { brandLogos } from "@/content/brand-logos";
 import { coreServices } from "@/content/services";
 
-export function ServicesGrid() {
+export function ServicesGrid({ code = "U1", tier = "primary" }: { code?: string; tier?: HeadingTier } = {}) {
   return (
     <section className="container-x py-16 sm:py-28" aria-labelledby="services-title">
       <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
         <SectionHeading
-          index="01"
+          code={code}
+          tier={tier}
           eyebrow="What we do"
           title={<span id="services-title">Repairs, sales & straight answers</span>}
           intro="Whether you're looking to fix a broken or cracked screen, find accessories, or buy something new, we're sure to be able to help."
@@ -27,6 +28,7 @@ export function ServicesGrid() {
             key={s.id}
             data-reveal="fade"
             style={{ "--i": i } as React.CSSProperties}
+            data-link-card
             className="group card relative flex w-[82%] shrink-0 snap-start flex-col overflow-hidden transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-signal/60 sm:w-[60%] md:w-auto"
           >
             <div className="relative aspect-[16/11] overflow-hidden">

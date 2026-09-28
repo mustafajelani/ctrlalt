@@ -1,17 +1,18 @@
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { ProductCard } from "@/components/shop/ProductCard";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SectionHeading, type HeadingTier } from "@/components/ui/SectionHeading";
 import { products } from "@/content/products";
 
-export function ShopTeaser() {
+export function ShopTeaser({ code = "C4", tier = "primary" }: { code?: string; tier?: HeadingTier } = {}) {
   const featured = products.filter((p) => p.featured).slice(0, 4);
   return (
     <section className="border-t border-line bg-ink-2 py-16 sm:py-28" aria-labelledby="shop-title">
       <div className="container-x">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
-            index="04"
+            code={code}
+            tier={tier}
             eyebrow="Shop"
             title={<span id="shop-title">Tested tech, ready to go</span>}
             intro="Laptops, phones, consoles and accessories. Every refurbished and pre-owned device is inspected in our shop before it hits the shelf."

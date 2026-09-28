@@ -1,6 +1,6 @@
 import { ArrowUpRight, BatteryFull, DeviceMobile, GameController, Keyboard } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SectionHeading, type HeadingTier } from "@/components/ui/SectionHeading";
 import { pricing } from "@/content/pricing";
 import { money } from "@/content/products";
 
@@ -11,7 +11,7 @@ const picks = [
   { device: "console", name: "HDMI port replacement", icon: GameController, label: "Console HDMI" },
 ] as const;
 
-export function PricingTeaser() {
+export function PricingTeaser({ code = "R3", tier = "secondary" }: { code?: string; tier?: HeadingTier } = {}) {
   const rows = picks.map((p) => ({
     ...p,
     row: pricing.find((g) => g.device === p.device)?.rows.find((r) => r.name === p.name),
@@ -22,7 +22,8 @@ export function PricingTeaser() {
       <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
         <div>
           <SectionHeading
-            index="03"
+            code={code}
+            tier={tier}
             eyebrow="Upfront pricing"
             title={<span id="pricing-title">Know the price before we pick up a screwdriver</span>}
             intro="Starting prices for our most common repairs. Your exact quote depends on the model, and you approve it before any work begins."
@@ -38,6 +39,7 @@ export function PricingTeaser() {
               <Link
                 href={`/book?device=${device}&issue=${row?.issue ?? "other"}&repair=${encodeURIComponent(label)}`}
                 aria-label={`${label}, from ${row?.from != null ? money(row.from) : "a quote"}. Book this repair`}
+                data-link-card
                 className="group card relative flex h-full flex-col overflow-hidden p-4 transition-colors duration-300 hover:border-signal/60 sm:p-6"
               >
                 <span className="absolute -top-16 -right-16 size-40 rounded-full bg-signal/0 blur-2xl transition-colors duration-500 group-hover:bg-signal/20" aria-hidden />

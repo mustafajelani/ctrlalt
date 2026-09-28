@@ -1,13 +1,14 @@
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SectionHeading, type HeadingTier } from "@/components/ui/SectionHeading";
 import { processSteps } from "@/content/services";
 
-export function ProcessSteps() {
+export function ProcessSteps({ code = "J2", tier = "secondary" }: { code?: string; tier?: HeadingTier } = {}) {
   return (
     <section className="relative overflow-hidden border-y border-line bg-ink-2 py-16 sm:py-28" aria-labelledby="process-title">
       <div className="pcb-grid absolute inset-0 opacity-50" aria-hidden />
       <div className="container-x relative">
         <SectionHeading
-          index="02"
+          code={code}
+          tier={tier}
           eyebrow="How it works"
           align="center"
           title={<span id="process-title">From broken to back in action</span>}

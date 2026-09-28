@@ -15,6 +15,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
     <article
       data-reveal
       style={{ "--i": index % 4 } as React.CSSProperties}
+      data-link-card
       className="group card relative flex flex-col overflow-hidden transition-colors duration-300 hover:border-signal/60"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-panel-2">

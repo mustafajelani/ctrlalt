@@ -64,7 +64,7 @@ export default function ContactPage() {
       </section>
 
       <div className="border-t border-line">
-        <ServiceArea index="01" />
+        <ServiceArea code="U1" />
       </div>
     </>
   );

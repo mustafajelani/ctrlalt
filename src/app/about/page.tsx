@@ -37,7 +37,7 @@ export default function AboutPage() {
             </div>
           </div>
           <div>
-            <SectionHeading index="01" eyebrow="Who we are" title="Fixing the neighborhood's tech" />
+            <SectionHeading code="U1" eyebrow="Who we are" title="Fixing the neighborhood's tech" />
             <div data-reveal style={{ "--i": 2 } as React.CSSProperties} className="mt-6 space-y-4 text-lg text-mist">
               <p>
                 Whether you&apos;re looking to fix a broken or cracked screen, shop for accessories, or buy something new, we at CTRL ALT DEL are sure to be able to help.
@@ -54,7 +54,7 @@ export default function AboutPage() {
 
       <section className="border-y border-line bg-ink-2 py-16 sm:py-28">
         <div className="container-x">
-          <SectionHeading index="02" eyebrow="How we work" title="What you can count on" align="center" />
+          <SectionHeading code="J2" tier="secondary" eyebrow="How we work" title="What you can count on" align="center" />
           <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v, i) => (
               <li key={v.title} data-reveal style={{ "--i": i } as React.CSSProperties} className="card p-7">
@@ -67,7 +67,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <Reviews index="03" />
+      <Reviews code="Q3" />
       <CtaBand />
     </>
   );

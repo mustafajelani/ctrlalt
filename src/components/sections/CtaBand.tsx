@@ -1,6 +1,7 @@
-import { ArrowRight, Phone } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, ArrowUpRight, Clock, MapPin, Phone } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
+import { OpenStatus } from "@/components/ui/OpenStatus";
 import { images } from "@/content/images";
 import { site } from "@/lib/site";
 
@@ -11,9 +12,12 @@ export function CtaBand({
     </>
   ),
   body = "Book online in under a minute or just walk in. We'll diagnose it, quote it upfront, and get you back up and running.",
+  visit = false,
 }: {
   title?: React.ReactNode;
   body?: string;
+  /** Adds a compact address / hours / directions row, standing in for a full service-area section. */
+  visit?: boolean;
 }) {
   return (
     <section className="container-x py-16 sm:py-28">
@@ -32,6 +36,29 @@ export function CtaBand({
               <Phone size={18} aria-hidden /> {site.phone.display}
             </a>
           </div>
+
+          {visit && (
+            <div className="mt-10 grid gap-5 border-t border-line pt-7 text-sm sm:grid-cols-2">
+              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 text-mist hover:text-signal-hot">
+                <MapPin size={20} className="mt-0.5 shrink-0 text-signal" aria-hidden />
+                <span>
+                  {site.address.street}
+                  <br />
+                  {site.address.city}, {site.address.region} {site.address.postal}
+                </span>
+              </a>
+              <div className="flex items-start gap-3">
+                <Clock size={20} className="mt-0.5 shrink-0 text-signal" aria-hidden />
+                <div>
+                  <OpenStatus className="text-mist" />
+                  <p className="mt-1 text-fog">Mon–Fri 10–5 · Sat 12–5 · Sun closed</p>
+                  <Link href="/contact" className="link-arrow mt-2 text-sm">
+                    Map & directions <ArrowUpRight size={14} weight="bold" aria-hidden />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

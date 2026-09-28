@@ -80,7 +80,7 @@ export default function ServicesPage() {
       </section>
 
       <section className="container-x pb-20 sm:pb-28" aria-labelledby="devices-title">
-        <SectionHeading index="01" eyebrow="By device" title={<span id="devices-title">What we fix</span>} />
+        <SectionHeading code="U1" eyebrow="By device" title={<span id="devices-title">What we fix</span>} />
         <div className="mt-14 space-y-6">
           {deviceServices.map((d, i) => (
             <article
@@ -125,7 +125,7 @@ export default function ServicesPage() {
             <Image src={images.soldering.src} alt={images.soldering.alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
           <div>
-            <SectionHeading index="03" eyebrow="Beyond repairs" title={<span id="extras-title">Upgrades, cleanups & data</span>} />
+            <SectionHeading code="R3" tier="secondary" eyebrow="Beyond repairs" title={<span id="extras-title">Upgrades, cleanups & data</span>} />
             <ul className="mt-10 space-y-6">
               {extras.map((e, i) => (
                 <li key={e.title} data-reveal style={{ "--i": i } as React.CSSProperties} className="flex gap-5">

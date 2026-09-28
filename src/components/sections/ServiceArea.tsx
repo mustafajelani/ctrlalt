@@ -5,13 +5,13 @@ import { hoursLabel } from "@/lib/hours";
 import { serviceAreas, site } from "@/lib/site";
 import { MapEmbed } from "./MapEmbed";
 
-export function ServiceArea({ index = "05" }: { index?: string }) {
+export function ServiceArea({ code }: { code: string }) {
   return (
     <section className="container-x py-16 sm:py-28" aria-labelledby="area-title">
       <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.15fr]">
         <div>
           <SectionHeading
-            index={index}
+            code={code}
             eyebrow="Service area"
             title={<span id="area-title">Your neighborhood tech shop</span>}
             intro={`Find us on East Allegheny Avenue in ${site.address.neighborhood}. Customers bring us their devices from across North and Northeast Philly, and from all over the city.`}

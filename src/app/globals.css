@@ -12,7 +12,6 @@
   --color-paper: #f4f4f5;
   --color-signal: #ea5400;
   --color-signal-hot: #ff7a1f;
-  --color-signal-deep: #b84200;
   --color-ok: #4ade80;
   --color-danger: #f87171;
 
@@ -121,14 +120,6 @@
     }
   }
 
-  .section-light {
-    background: var(--color-paper);
-    color: var(--color-ink);
-    .eyebrow {
-      color: var(--color-signal-deep);
-    }
-  }
-
   .btn {
     display: inline-flex;
     align-items: center;
@@ -174,13 +165,6 @@
     &:hover {
       border-color: var(--color-signal);
       color: var(--color-signal-hot);
-    }
-  }
-  .btn-dark {
-    background: var(--color-ink);
-    color: var(--color-paper);
-    &:hover {
-      background: #26262b;
     }
   }
   .btn-sm {
@@ -416,24 +400,50 @@ dialog.sheet[open] [data-stagger] {
   animation: fade-up 0.6s var(--ease-out-expo) calc(0.12s + var(--i, 0) * 0.045s) both;
 }
 
-/* ---------- Scroll reveal (only hides content once JS is confirmed) ---------- */
-.js [data-reveal] {
+/* ---------- Scroll-triggered details ----------
+   Content never fades in. RevealObserver adds `.is-in` to [data-reveal] elements so a few
+   purposeful details can react: silkscreen chips power on, trace dividers draw, stars fill. */
+@property --trace-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+/* A spark of "current" orbits the border of cards that are real links, on hover or keyboard focus. */
+[data-link-card]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--trace-angle), transparent 0deg 240deg, var(--color-signal) 300deg, #ffb27a 345deg, transparent 360deg);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
   opacity: 0;
-  transform: translate3d(0, 28px, 0);
-  transition:
-    opacity 0.8s var(--ease-out-expo),
-    transform 1s var(--ease-out-expo);
-  transition-delay: calc(var(--i, 0) * 80ms);
+  transition: opacity 0.3s;
 }
-.js [data-reveal="fade"] {
-  transform: none;
-}
-.js [data-reveal="scale"] {
-  transform: scale(0.96);
-}
-.js [data-reveal].is-in {
+[data-link-card]:hover::before,
+[data-link-card]:focus-within::before,
+[data-link-card]:focus-visible::before {
   opacity: 1;
-  transform: none;
+  animation: trace-orbit 2.4s linear infinite;
+}
+@keyframes trace-orbit {
+  to {
+    --trace-angle: 360deg;
+  }
+}
+/* Rating stars fill left-to-right when their block enters. */
+.js [data-reveal] .star-fill {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.4s var(--ease-in-out-quart) 0.35s;
+}
+.js [data-reveal].is-in .star-fill {
+  clip-path: inset(0 0 0 0);
 }
 
 /* Trace line that grows when its parent is revealed */
@@ -465,6 +475,96 @@ html:not(.js) .trace-grow-y {
   border-color: var(--color-signal);
   color: var(--color-signal-hot);
   box-shadow: 0 0 0 6px rgb(234 84 0 / 0.1);
+}
+
+/* ---------- PCB silkscreen labels + trace dividers ---------- */
+.silk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-signal-hot);
+}
+/* Reference designator drawn as a tiny IC: box + pin rows; it "powers on" when its section enters. */
+.silk-ref {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.75rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--color-line-2);
+  border-radius: 3px;
+  color: var(--color-fog);
+  letter-spacing: 0.1em;
+  transition:
+    border-color 0.5s 0.25s,
+    color 0.5s 0.25s,
+    box-shadow 0.8s 0.25s;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 6px);
+    opacity: 0.6;
+  }
+  &::before {
+    top: -5px;
+  }
+  &::after {
+    bottom: -5px;
+  }
+}
+.silk.is-in .silk-ref,
+html:not(.js) .silk-ref {
+  border-color: rgb(234 84 0 / 0.75);
+  color: var(--color-signal-hot);
+  box-shadow: 0 0 16px -4px rgb(255 122 31 / 0.65);
+}
+
+.trace-divider {
+  display: flex;
+  align-items: center;
+  height: 1.5rem;
+  & .seg {
+    flex: 1;
+    height: 1px;
+    background: var(--color-line-2);
+  }
+  & .lit {
+    flex: 0 0 28%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-signal), var(--color-signal-hot));
+    box-shadow: 0 0 10px rgb(255 122 31 / 0.55);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 1.4s var(--ease-in-out-quart) 0.1s;
+  }
+  & .via {
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
+    border: 2px solid var(--color-line-2);
+    border-radius: 50%;
+    background: var(--color-ink);
+    transition: border-color 0.4s;
+  }
+  & .via.on:nth-child(4) {
+    transition-delay: 1.3s;
+  }
+}
+.is-in .trace-divider .lit,
+html:not(.js) .trace-divider .lit {
+  transform: none;
+}
+.is-in .trace-divider .via.on,
+html:not(.js) .trace-divider .via.on {
+  border-color: var(--color-signal);
 }
 
 /* ---------- Hero ---------- */
