@@ -3,10 +3,11 @@ import Link from "next/link";
 import { cartSnapshot, money, type Product, type StockStatus } from "@/content/products";
 import { AddToCartButton } from "./AddToCartButton";
 
+// These badges sit on product photos, so they need a solid dark backing to stay readable on light images.
 export const conditionStyle: Record<Product["condition"], string> = {
-  New: "bg-signal/15 text-signal-hot",
-  Refurbished: "bg-ok/10 text-ok",
-  "Pre-owned": "bg-white/8 text-mist",
+  New: "bg-ink/85 text-signal-hot ring-1 ring-inset ring-signal/40",
+  Refurbished: "bg-ink/85 text-ok ring-1 ring-inset ring-ok/35",
+  "Pre-owned": "bg-ink/85 text-mist ring-1 ring-inset ring-white/15",
 };
 
 export const stockLabel: Record<StockStatus, string> = { available: "Add to cart", reserved: "Reserved", "sold-out": "Out of stock" };
