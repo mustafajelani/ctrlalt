@@ -90,7 +90,10 @@ export async function saveProduct(_prev: SaveProductState, formData: FormData): 
     if (!prev) return { error: "This product no longer exists." };
     await sql`
       UPDATE products SET name = ${name}, category = ${category}, condition = ${condition}, summary = ${summary}, specs = ${specs},
-        images = ${imagesJson}::jsonb, price = ${price}, quantity = ${quantity}, in_stock = ${inStock}, featured = ${featured}, updated_at = now()
+        images = ${imagesJson}::jsonb, price = ${price}, quantity = ${quantity}, in_stock = ${inStock}, featured = ${featured},
+        -- Newly featured products go to the front of the home page; already-featured ones keep their place.
+        featured_at = CASE WHEN ${featured}::boolean THEN COALESCE(CASE WHEN featured THEN featured_at END, now()) END,
+        updated_at = now()
       WHERE slug = ${slug}`;
     const kept = new Set(images.map((i) => i.src));
     await deleteImages((prev.images as ProductImage[]).map((i) => i.src).filter((s) => !kept.has(s)));
@@ -98,8 +101,9 @@ export async function saveProduct(_prev: SaveProductState, formData: FormData): 
     slug = await uniqueSlug(name);
     try {
       await sql`
-        INSERT INTO products (slug, name, category, condition, summary, specs, images, price, quantity, in_stock, featured, sort_order)
+        INSERT INTO products (slug, name, category, condition, summary, specs, images, price, quantity, in_stock, featured, featured_at, sort_order)
         VALUES (${slug}, ${name}, ${category}, ${condition}, ${summary}, ${specs}, ${imagesJson}::jsonb, ${price}, ${quantity}, ${inStock}, ${featured},
+          ${featured ? new Date() : null},
           (SELECT COALESCE(MAX(sort_order), 0) + 10 FROM products))`;
     } catch (err) {
       console.error("product insert failed", err);

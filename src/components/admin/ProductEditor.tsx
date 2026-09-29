@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, CircleNotch, ImageSquare, Star, Trash, UploadSim
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { saveProduct, type SaveProductState } from "@/app/admin/product-actions";
-import { categories, conditions, type Condition, type ProductImage } from "@/content/products";
+import { categories, conditions, HOME_FEATURED, type Condition, type ProductImage } from "@/content/products";
 
 const MAX_PHOTOS = 7;
 const MAX_EDGE = 1600;
@@ -270,13 +270,25 @@ export function ProductEditor({ mode, initial, uploadsEnabled }: { mode: "create
           <span className="field-label">Units on hand</span>
           <input name="quantity" type="number" inputMode="numeric" min="0" max="9999" step="1" required value={form.quantity} onChange={set("quantity")} className="input" {...invalid("quantity")} />
         </label>
-        <label className="flex min-h-11 items-center gap-3">
-          <input name="in_stock" type="checkbox" checked={form.inStock} onChange={set("inStock")} className="size-5 accent-[var(--color-signal)]" />
+        <label className="flex min-h-11 items-start gap-3 pt-2.5">
+          <input name="in_stock" type="checkbox" checked={form.inStock} onChange={set("inStock")} className="mt-0.5 size-5 shrink-0 accent-[var(--color-signal)]" />
           <span>In stock (customers can reserve it)</span>
         </label>
-        <label className="flex min-h-11 items-center gap-3">
-          <input name="featured" type="checkbox" checked={form.featured} onChange={set("featured")} className="size-5 accent-[var(--color-signal)]" />
-          <span>Feature on the home page</span>
+        <label className="flex min-h-11 items-start gap-3 pt-2.5">
+          <input
+            name="featured"
+            type="checkbox"
+            checked={form.featured}
+            onChange={set("featured")}
+            aria-describedby="featured-hint"
+            className="mt-0.5 size-5 shrink-0 accent-[var(--color-signal)]"
+          />
+          <span>
+            Feature on the home page
+            <span id="featured-hint" className="mt-1 block text-sm text-fog">
+              The home page shows the {HOME_FEATURED} most recently featured products. Featuring this one puts it first.
+            </span>
+          </span>
         </label>
       </fieldset>
 

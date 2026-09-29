@@ -4,7 +4,7 @@ import Link from "next/link";
 import { releaseOrder } from "@/app/admin/actions";
 import { setProductInStock, updateProductStock } from "@/app/admin/product-actions";
 import { categories, money, type StockStatus } from "@/content/products";
-import { HOLDING_STATUSES, loadAllProducts, type AdminProduct } from "@/lib/catalog";
+import { HOLDING_STATUSES, homeFeatured, loadAllProducts, type AdminProduct } from "@/lib/catalog";
 import { sql } from "@/lib/db";
 import { site } from "@/lib/site";
 import { ConfirmRelease } from "./ConfirmDelete";
@@ -46,6 +46,7 @@ export async function ProductsTab({ filter: requested, saved, deleted, error }: 
   const categoryLabel = (key: string) => categories.find((c) => c.key === key)?.label ?? key;
   const back = `/admin?tab=products${filter !== "all" ? `&stock=${filter}` : ""}`;
   const savedName = products.find((p) => p.slug === saved)?.name;
+  const onHome = new Set(homeFeatured(products.filter((p) => !p.archived)).map((p) => p.slug));
 
   return (
     <div className="mt-8 space-y-6">
@@ -116,7 +117,7 @@ export async function ProductsTab({ filter: requested, saved, deleted, error }: 
                       </p>
                       <p className="text-sm text-fog">
                         {p.condition} · {categoryLabel(p.category)}
-                        {p.featured ? " · Featured" : ""}
+                        {p.featured && (onHome.has(p.slug) ? " · On home page" : p.archived ? " · Featured" : " · Featured, not on home page (only the 4 newest show)")}
                       </p>
                       <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                         {p.archived ? (

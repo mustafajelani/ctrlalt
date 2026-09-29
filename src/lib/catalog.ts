@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import type { PoolClient } from "pg";
-import { PLACEHOLDER_IMAGE, seedProducts, type Category, type Condition, type Product, type ProductImage, type StockStatus } from "@/content/products";
+import { HOME_FEATURED, PLACEHOLDER_IMAGE, seedProducts, type Category, type Condition, type Product, type ProductImage, type StockStatus } from "@/content/products";
 import { sql } from "./db";
 
 /** Tag on every cached storefront read of products; admin edits and new orders expire it. */
@@ -36,6 +36,7 @@ function build(p: {
   quantity: number;
   inStock: boolean;
   featured: boolean;
+  featuredAt?: number;
   archived: boolean;
   held: number;
 }): AdminProduct {
@@ -51,6 +52,7 @@ function build(p: {
     image: p.images[0] ?? PLACEHOLDER_IMAGE,
     price: p.price,
     featured: p.featured,
+    featuredAt: p.featuredAt,
     quantity: p.quantity,
     held: p.held,
     inStock: p.inStock,
@@ -65,8 +67,11 @@ const HOLDS_QUERY = `
   FROM orders o, jsonb_array_elements(o.items) i
   WHERE o.status = ANY($1)`;
 
-/** Uncached: every product (archived too) with live holds. Admin uses this directly. */
-export async function loadAllProducts(): Promise<AdminProduct[]> {
+/**
+ * Uncached: every product (archived too) with live holds. Admin uses this directly.
+ * On a database error it returns [] unless `throwOnError` is set (the cache needs the throw so it doesn't store the failure).
+ */
+export async function loadAllProducts({ throwOnError = false } = {}): Promise<AdminProduct[]> {
   if (!sql) {
     // No database configured: show the starter catalog as a read-only demo.
     return seedProducts.map((p) =>
@@ -75,7 +80,7 @@ export async function loadAllProducts(): Promise<AdminProduct[]> {
   }
   try {
     const [rows, holds] = await Promise.all([
-      sql`SELECT slug, name, category, condition, summary, specs, images, price::float8 AS price, quantity, in_stock, featured, archived
+      sql`SELECT slug, name, category, condition, summary, specs, images, price::float8 AS price, quantity, in_stock, featured, featured_at, archived
           FROM products ORDER BY sort_order, created_at`,
       sql`
         SELECT i->>'slug' AS slug, SUM((i->>'qty')::int)::int AS held
@@ -97,6 +102,7 @@ export async function loadAllProducts(): Promise<AdminProduct[]> {
         quantity: r.quantity,
         inStock: r.in_stock,
         featured: r.featured,
+        featuredAt: r.featured && r.featured_at ? new Date(r.featured_at).getTime() : undefined,
         archived: r.archived,
         held: heldBy.get(r.slug) ?? 0,
       }),
@@ -104,8 +110,19 @@ export async function loadAllProducts(): Promise<AdminProduct[]> {
   } catch (err) {
     // Never fall back to demo products when a real database is configured: an empty shop is safer than fake stock.
     console.error("product load failed", err);
+    if (throwOnError) throw err;
     return [];
   }
+}
+
+/** The featured products the home page shows: most recently featured first (stable for equal/missing dates). */
+export function homeFeatured<T extends Product>(products: T[]): T[] {
+  return products
+    .filter((p) => p.featured)
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => (b.p.featuredAt ?? 0) - (a.p.featuredAt ?? 0) || a.i - b.i)
+    .slice(0, HOME_FEATURED)
+    .map(({ p }) => p);
 }
 
 function toShopProduct(p: AdminProduct): Product {
@@ -113,12 +130,23 @@ function toShopProduct(p: AdminProduct): Product {
   return shop;
 }
 
-/** Cached storefront catalog: listed (non-archived) products with price and reservable stock. */
-export const getShopProducts = unstable_cache(
-  async (): Promise<Product[]> => (await loadAllProducts()).filter((p) => !p.archived).map(toShopProduct),
-  ["shop-products-v2"],
+const cachedShopProducts = unstable_cache(
+  async (): Promise<Product[]> => (await loadAllProducts({ throwOnError: true })).filter((p) => !p.archived).map(toShopProduct),
+  ["shop-products-v3"],
   { tags: [PRODUCTS_TAG], revalidate: 300 },
 );
+
+/**
+ * Cached storefront catalog: listed (non-archived) products with price and reservable stock.
+ * A failed load is never cached, so a brief database outage doesn't leave the shop empty for minutes.
+ */
+export async function getShopProducts(): Promise<Product[]> {
+  try {
+    return await cachedShopProducts();
+  } catch {
+    return [];
+  }
+}
 
 export async function getShopProduct(slug: string) {
   return (await getShopProducts()).find((p) => p.slug === slug);

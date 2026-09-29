@@ -19,6 +19,8 @@ export type Product = {
   /** Set once live inventory is merged in; absent on raw catalog entries. */
   status?: StockStatus;
   featured?: boolean;
+  /** When it was last featured (ms since epoch); the home page shows the most recent ones. */
+  featuredAt?: number;
   /** Main photo (always set; a placeholder when a listing has no photos). */
   image: ProductImage;
   /** Main photo first, then up to 6 gallery photos. */
@@ -30,6 +32,9 @@ export type Product = {
 export type SeedProduct = Omit<Product, "images" | "status">;
 
 export const conditions: Condition[] = ["New", "Refurbished", "Pre-owned"];
+
+/** How many featured products the home page shows. */
+export const HOME_FEATURED = 4;
 
 export const PLACEHOLDER_IMAGE: ProductImage = { src: "/brand/product-placeholder.svg", alt: "" };
 
