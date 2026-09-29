@@ -1,8 +1,9 @@
 import { SignOut } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
+import { ConfirmDelete, ConfirmRelease } from "@/components/admin/ConfirmDelete";
 import { ListControls, Pagination } from "@/components/admin/ListControls";
+import { ProductsTab } from "@/components/admin/ProductsTab";
 import { money } from "@/content/products";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
@@ -10,8 +11,10 @@ import { formatTime } from "@/lib/hours";
 import { deviceTypes, issueTypes, labelFor, orderStatuses, ticketStatuses } from "@/lib/repairs";
 import { site } from "@/lib/site";
 import { formatPhone } from "@/lib/validate";
-import { createWalkIn, deleteOrder, deleteTicket, logout, updateOrder, updateTicket } from "./actions";
-import { orderList, PAGE_SIZE, parseList, ticketList, viewCounts, type ListState, type Search, type ViewKey } from "./list";
+import { createWalkIn, deleteOrder, deleteTicket, logout, releaseOrder, updateOrder, updateTicket } from "./actions";
+import { listHref, orderList, PAGE_SIZE, parseList, ticketList, viewCounts, type ListState, type Search, type ViewKey } from "./list";
+
+const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
 
 export const metadata: Metadata = { title: "Staff dashboard", robots: { index: false, follow: false } };
 
@@ -46,7 +49,7 @@ const totalFor = (state: ListState, byStatus: Map<string, number>) => state.stat
 export default async function AdminPage({ searchParams }: { searchParams: Promise<Search> }) {
   await requireAdmin();
   const params = await searchParams;
-  const tab = params.tab === "orders" || params.tab === "messages" ? params.tab : "tickets";
+  const tab = params.tab === "orders" || params.tab === "products" || params.tab === "messages" ? params.tab : "tickets";
 
   if (!sql) {
     return (
@@ -73,7 +76,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           error={params.error === "walkin"}
         />
       ) : tab === "orders" ? (
-        <Orders byStatus={orderCounts} state={parseList(params, orderList)} />
+        <Orders byStatus={orderCounts} state={parseList(params, orderList)} error={one(params.error)} />
+      ) : tab === "products" ? (
+        <ProductsTab filter={one(params.stock)} saved={one(params.saved)} deleted={one(params.deleted)} error={one(params.error)} />
       ) : (
         <Messages />
       )}
@@ -85,6 +90,7 @@ function Shell({ tab, badges, children }: { tab: string; badges?: Record<string,
   const tabs = [
     { key: "tickets", label: "Repairs" },
     { key: "orders", label: "Orders" },
+    { key: "products", label: "Products" },
     { key: "messages", label: "Messages" },
   ];
   return (
@@ -101,7 +107,7 @@ function Shell({ tab, badges, children }: { tab: string; badges?: Record<string,
         </form>
       </div>
 
-      <nav aria-label="Dashboard sections" className="mt-8 flex gap-2 border-b border-line pb-4">
+      <nav aria-label="Dashboard sections" className="mt-8 flex flex-wrap gap-2 border-b border-line pb-4">
         {tabs.map((t) => (
           <Link
             key={t.key}
@@ -274,7 +280,7 @@ async function Tickets({ byStatus, state: requested, created, error }: { byStatu
   );
 }
 
-async function Orders({ byStatus, state: requested }: { byStatus: Map<string, number>; state: ListState }) {
+async function Orders({ byStatus, state: requested, error }: { byStatus: Map<string, number>; state: ListState; error?: string }) {
   const total = totalFor(requested, byStatus);
   const state = clampPage(requested, total);
   const rows = await sql!`
@@ -291,6 +297,12 @@ async function Orders({ byStatus, state: requested }: { byStatus: Map<string, nu
 
   return (
     <div className="mt-8 space-y-6">
+      {error === "stock" && (
+        <p className="rounded-lg border border-danger/40 bg-danger/10 p-4 text-sm text-danger" role="alert">
+          Not enough units on hand for that change. Another order holds them, or the count is too low. Adjust the product in the Products tab and try
+          again.
+        </p>
+      )}
       <ListControls tab="orders" config={orderList} state={state} counts={viewCounts(orderList, byStatus)} />
 
       {rows.length === 0 ? (
@@ -330,6 +342,7 @@ async function Orders({ byStatus, state: requested }: { byStatus: Map<string, nu
               <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-line pt-4">
                 <form action={updateOrder} className="flex flex-1 gap-3">
                   <input type="hidden" name="id" value={o.id} />
+                  <input type="hidden" name="back" value={listHref("orders", state)} />
                   <label className="flex-1 sm:max-w-56">
                     <span className="sr-only">Status for order {o.id}</span>
                     <select name="status" defaultValue={o.status} className="input capitalize">
@@ -342,6 +355,7 @@ async function Orders({ byStatus, state: requested }: { byStatus: Map<string, nu
                   </label>
                   <button className="btn btn-primary">Save</button>
                 </form>
+                {(o.status === "reserved" || o.status === "ready") && <ConfirmRelease action={releaseOrder} id={o.id} back={listHref("orders", state)} />}
                 <ConfirmDelete action={deleteOrder} id={o.id} kind="order" />
               </div>
             </li>

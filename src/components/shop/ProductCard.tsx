@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { money, type Product } from "@/content/products";
+import { cartSnapshot, money, type Product, type StockStatus } from "@/content/products";
 import { AddToCartButton } from "./AddToCartButton";
 
 export const conditionStyle: Record<Product["condition"], string> = {
@@ -9,8 +9,15 @@ export const conditionStyle: Record<Product["condition"], string> = {
   "Pre-owned": "bg-white/8 text-mist",
 };
 
+export const stockLabel: Record<StockStatus, string> = { available: "Add to cart", reserved: "Reserved", "sold-out": "Out of stock" };
+
+export function productStatus(product: Product): StockStatus {
+  return product.status ?? (product.stock > 0 ? "available" : "sold-out");
+}
+
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
-  const inStock = product.stock > 0;
+  const status = productStatus(product);
+  const inStock = status === "available";
   return (
     <article
       data-reveal
@@ -27,6 +34,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           className="object-cover transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
         />
         <span className={`badge absolute top-2.5 left-2.5 backdrop-blur sm:top-3 sm:left-3 ${conditionStyle[product.condition]}`}>{product.condition}</span>
+        {!inStock && (
+          <span className="badge absolute top-2.5 right-2.5 bg-ink/85 text-mist backdrop-blur sm:top-3 sm:right-3">{stockLabel[status]}</span>
+        )}
       </div>
       {/* Phones show two cards per row: summary hidden, price above a full-width button. */}
       <div className="flex flex-1 flex-col gap-2 p-3.5 sm:gap-3 sm:p-5">
@@ -39,7 +49,12 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         <div className="mt-auto flex flex-col gap-2 pt-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pt-2">
           <span className="font-mono text-base tabular-nums sm:text-lg">{money(product.price)}</span>
           <div className="relative z-10">
-            <AddToCartButton slug={product.slug} inStock={inStock} className="btn btn-ghost btn-sm w-full px-3 sm:w-auto sm:px-4" />
+            <AddToCartButton
+              product={cartSnapshot(product)}
+              inStock={inStock}
+              unavailableLabel={stockLabel[status]}
+              className="btn btn-ghost btn-sm w-full px-3 sm:w-auto sm:px-4"
+            />
           </div>
         </div>
       </div>

@@ -2,9 +2,21 @@
 
 import { Check, ShoppingCartSimple } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useState } from "react";
-import { useCart } from "./CartProvider";
+import { useCart, type CartProduct } from "./CartProvider";
 
-export function AddToCartButton({ slug, qty = 1, inStock, className = "btn btn-primary" }: { slug: string; qty?: number; inStock: boolean; className?: string }) {
+export function AddToCartButton({
+  product,
+  qty = 1,
+  inStock,
+  unavailableLabel = "Out of stock",
+  className = "btn btn-primary",
+}: {
+  product: CartProduct;
+  qty?: number;
+  inStock: boolean;
+  unavailableLabel?: string;
+  className?: string;
+}) {
   const { add } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -17,7 +29,7 @@ export function AddToCartButton({ slug, qty = 1, inStock, className = "btn btn-p
   if (!inStock) {
     return (
       <button type="button" className={className} disabled>
-        Sold out
+        {unavailableLabel}
       </button>
     );
   }
@@ -27,7 +39,7 @@ export function AddToCartButton({ slug, qty = 1, inStock, className = "btn btn-p
       type="button"
       className={className}
       onClick={() => {
-        add(slug, qty);
+        add(product, qty);
         setAdded(true);
       }}
     >

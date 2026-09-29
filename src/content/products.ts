@@ -1,8 +1,12 @@
-// PLACEHOLDER CATALOG: swap names, prices, stock and photos for the shop's real inventory.
+// Once a database is connected, products live in the `products` table and are managed from the
+// admin Products tab (see src/lib/catalog.ts). `seedProducts` below is only the starter catalog:
+// migration 0003 copies it into the database, and it's shown as a demo when no database is configured.
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
 
 export type Category = "phones" | "laptops" | "tablets" | "gaming" | "accessories";
 export type Condition = "New" | "Refurbished" | "Pre-owned";
+export type StockStatus = "available" | "reserved" | "sold-out";
+export type ProductImage = { src: string; alt: string };
 
 export type Product = {
   slug: string;
@@ -10,12 +14,29 @@ export type Product = {
   category: Category;
   condition: Condition;
   price: number;
+  /** Units that can be reserved right now (after other customers' holds). */
   stock: number;
+  /** Set once live inventory is merged in; absent on raw catalog entries. */
+  status?: StockStatus;
   featured?: boolean;
-  image: { src: string; alt: string };
+  /** Main photo (always set; a placeholder when a listing has no photos). */
+  image: ProductImage;
+  /** Main photo first, then up to 6 gallery photos. */
+  images: ProductImage[];
   summary: string;
   specs: string[];
 };
+
+export type SeedProduct = Omit<Product, "images" | "status">;
+
+export const conditions: Condition[] = ["New", "Refurbished", "Pre-owned"];
+
+export const PLACEHOLDER_IMAGE: ProductImage = { src: "/brand/product-placeholder.svg", alt: "" };
+
+/** The few fields the cart stores with a line (keeps client payloads small). */
+export function cartSnapshot(p: Product) {
+  return { slug: p.slug, name: p.name, condition: p.condition, image: p.image, price: p.price };
+}
 
 export const categories: { key: Category | "all"; label: string }[] = [
   { key: "all", label: "All" },
@@ -26,7 +47,7 @@ export const categories: { key: Category | "all"; label: string }[] = [
   { key: "accessories", label: "Accessories" },
 ];
 
-export const products: Product[] = [
+export const seedProducts: SeedProduct[] = [
   {
     slug: "iphone-13-128gb",
     name: "iPhone 13 · 128GB",
@@ -220,10 +241,6 @@ export const products: Product[] = [
     specs: ["Raised camera lip", "Shock-absorbing corners", "Multiple colors"],
   },
 ];
-
-export function productBySlug(slug: string) {
-  return products.find((p) => p.slug === slug);
-}
 
 export function money(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n % 1 ? 2 : 0 }).format(n);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/PageHero";
 import { ShopBrowser } from "@/components/shop/ShopBrowser";
 import { categories, type Category } from "@/content/products";
+import { getShopProducts } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Shop Laptops, Phones & Electronics",
@@ -21,7 +22,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         intro="Tested phones, laptops, consoles and accessories. Reserve online, then pay and pick up at the shop."
       />
       <section className="container-x py-12 sm:py-16">
-        <ShopBrowser initialCategory={initial} />
+        <ShopBrowser products={await getShopProducts()} initialCategory={initial} />
       </section>
     </>
   );

@@ -2,10 +2,10 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { SectionHeading, type HeadingTier } from "@/components/ui/SectionHeading";
-import { products } from "@/content/products";
+import { getShopProducts } from "@/lib/catalog";
 
-export function ShopTeaser({ code = "C4", tier = "primary" }: { code?: string; tier?: HeadingTier } = {}) {
-  const featured = products.filter((p) => p.featured).slice(0, 4);
+export async function ShopTeaser({ code = "C4", tier = "primary" }: { code?: string; tier?: HeadingTier } = {}) {
+  const featured = (await getShopProducts()).filter((p) => p.featured).slice(0, 4);
   return (
     <section className="border-t border-line bg-ink-2 py-16 sm:py-28" aria-labelledby="shop-title">
       <div className="container-x">

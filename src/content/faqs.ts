@@ -54,11 +54,11 @@ export const faqGroups = [
     title: "Tracking",
     items: [
       {
-        q: "How do I track my repair?",
-        a: "Use the Track Repair page with the ticket ID from your booking confirmation or receipt (for example CAD-7K2M9Q) and the last four digits of your phone number.",
+        q: "How do I track my repair or order?",
+        a: "Use the Tracking page with your ticket ID for repairs (for example CAD-7K2M9Q) or your order number for shop orders (for example ORD-4H8P2X), plus the last four digits of your phone number. Orders show when your items are reserved, ready for pickup and picked up.",
       },
       {
-        q: "I lost my ticket number. What now?",
+        q: "I lost my ticket or order number. What now?",
         a: "No problem. Call us at (215) 279-7222 and we'll look it up for you.",
       },
     ],

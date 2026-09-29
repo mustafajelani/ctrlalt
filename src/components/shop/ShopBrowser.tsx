@@ -2,13 +2,13 @@
 
 import { MagnifyingGlass, X } from "@phosphor-icons/react/dist/ssr";
 import { useMemo, useState } from "react";
-import { categories, products, type Category, type Condition } from "@/content/products";
+import { categories, type Category, type Condition, type Product } from "@/content/products";
 import { ProductCard } from "./ProductCard";
 
 type Sort = "featured" | "price-asc" | "price-desc";
 const conditions: Condition[] = ["New", "Refurbished", "Pre-owned"];
 
-export function ShopBrowser({ initialCategory }: { initialCategory: Category | "all" }) {
+export function ShopBrowser({ products, initialCategory }: { products: Product[]; initialCategory: Category | "all" }) {
   const [category, setCategory] = useState<Category | "all">(initialCategory);
   const [condition, setCondition] = useState<Condition | null>(null);
   const [query, setQuery] = useState("");
@@ -25,7 +25,7 @@ export function ShopBrowser({ initialCategory }: { initialCategory: Category | "
     if (sort === "price-asc") return [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") return [...list].sort((a, b) => b.price - a.price);
     return [...list].sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
-  }, [category, condition, query, sort]);
+  }, [products, category, condition, query, sort]);
 
   function pickCategory(key: Category | "all") {
     setCategory(key);

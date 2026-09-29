@@ -1,7 +1,10 @@
 import { sql } from "@/lib/db";
 import { readJson, text } from "@/lib/validate";
 
-const NOT_FOUND = "We couldn't find a repair matching that ticket ID and phone number. Double-check both, or call us.";
+const NOT_FOUND = {
+  ticket: "We couldn't find a repair matching that ticket ID and phone number. Double-check both, or call us.",
+  order: "We couldn't find an order matching that order number and phone number. Double-check both, or call us.",
+};
 
 type TicketRow = {
   id: string;
@@ -15,14 +18,33 @@ type TicketRow = {
   last4: string;
 };
 
+type OrderRow = {
+  id: string;
+  items: { name: string; condition: string; price: number; qty: number }[];
+  subtotal: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  last4: string;
+};
+
+/** Accepts "CAD-7K2M9Q", "ord 7k2m9q", or a bare code (treated as a repair ticket, the most common case). */
+function normalize(raw: string) {
+  const id = raw.toUpperCase().replace(/\s+/g, "");
+  if (/^ORD-?/.test(id)) return { kind: "order" as const, id: `ORD-${id.replace(/^ORD-?/, "")}` };
+  return { kind: "ticket" as const, id: `CAD-${id.replace(/^CAD-?/, "")}` };
+}
+
 export async function POST(req: Request) {
   const body = await readJson(req);
-  let id = text(body?.id, 20).toUpperCase().replace(/\s+/g, "");
-  if (id && !id.startsWith("CAD-")) id = `CAD-${id.replace(/^CAD/, "")}`;
+  const { kind, id } = normalize(text(body?.id, 20));
   const last4 = text(body?.last4, 4);
 
-  if (!/^CAD-[A-Z0-9]{4,10}$/.test(id) || !/^\d{4}$/.test(last4)) {
-    return Response.json({ ok: false, error: "Enter your ticket ID (like CAD-7K2M9Q) and the last 4 digits of your phone." }, { status: 422 });
+  if (!/^(CAD|ORD)-[A-Z0-9]{4,10}$/.test(id) || !/^\d{4}$/.test(last4)) {
+    return Response.json(
+      { ok: false, error: "Enter your ticket or order number (like CAD-7K2M9Q or ORD-4H8P2X) and the last 4 digits of your phone." },
+      { status: 422 },
+    );
   }
 
   if (!sql) {
@@ -32,11 +54,30 @@ export async function POST(req: Request) {
   }
 
   try {
+    if (kind === "order") {
+      const rows = (await sql`
+        SELECT id, items, subtotal, status, created_at, updated_at, right(phone, 4) AS last4
+        FROM orders WHERE id = ${id} LIMIT 1`) as OrderRow[];
+      const o = rows[0];
+      if (!o || o.last4 !== last4) return Response.json({ ok: false, error: NOT_FOUND.order }, { status: 404 });
+      return Response.json({
+        ok: true,
+        order: {
+          id: o.id,
+          status: o.status,
+          items: o.items.map((i) => ({ name: i.name, condition: i.condition, price: Number(i.price), qty: i.qty })),
+          subtotal: Number(o.subtotal),
+          createdAt: o.created_at,
+          updatedAt: o.updated_at,
+        },
+      });
+    }
+
     const rows = (await sql`
       SELECT id, device_type, device_model, issues, status, customer_note, created_at, updated_at, right(phone, 4) AS last4
       FROM tickets WHERE id = ${id} LIMIT 1`) as TicketRow[];
     const t = rows[0];
-    if (!t || t.last4 !== last4) return Response.json({ ok: false, error: NOT_FOUND }, { status: 404 });
+    if (!t || t.last4 !== last4) return Response.json({ ok: false, error: NOT_FOUND.ticket }, { status: 404 });
 
     const events = await sql`SELECT status, note, created_at FROM ticket_events WHERE ticket_id = ${id} ORDER BY created_at ASC`;
     return Response.json({

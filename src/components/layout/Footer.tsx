@@ -29,7 +29,7 @@ const columns = [
     title: "Help",
     links: [
       { href: "/book", label: "Book a repair" },
-      { href: "/track", label: "Track your repair" },
+      { href: "/track", label: "Track a repair or order" },
       { href: "/faq", label: "FAQ" },
       { href: "/about", label: "About us" },
       { href: "/contact", label: "Contact" },

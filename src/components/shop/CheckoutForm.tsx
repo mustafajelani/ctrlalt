@@ -7,12 +7,12 @@ import { useState } from "react";
 import { describe, Field } from "@/components/ui/Field";
 import { money } from "@/content/products";
 import { fullAddress, site } from "@/lib/site";
-import { useCart } from "./CartProvider";
+import { problemText, useCart } from "./CartProvider";
 
 type Errors = Record<string, string>;
 
 export function CheckoutForm() {
-  const { lines, subtotal, ready, clear } = useCart();
+  const { lines, subtotal, ready, hasProblems, clear, refreshStock } = useCart();
   const [form, setForm] = useState({ name: "", phone: "", email: "", notes: "", company: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [sending, setSending] = useState(false);
@@ -55,6 +55,8 @@ export function CheckoutForm() {
         setServerError(data.errors.items ?? "");
       } else {
         setServerError(data.error ?? "Something went wrong. Please try again or call us.");
+        // Someone reserved an item first: pull fresh stock so the affected lines are flagged.
+        if (res.status === 409) void refreshStock();
       }
     } catch {
       setServerError("We couldn't reach the server. Check your connection and try again.");
@@ -74,8 +76,14 @@ export function CheckoutForm() {
         <p className="mx-auto mt-4 max-w-md text-fog">
           We&apos;ll call you to confirm and let you know when your items are set aside. Pick up at {fullAddress}.
         </p>
+        <p className="mx-auto mt-3 max-w-md text-sm text-fog">
+          Save this order number. You can check when it&apos;s ready on the Tracking page with the last 4 digits of your phone.
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+          <Link href={`/track?id=${order.id}`} className="btn btn-primary">
+            Track this order <ArrowRight size={16} weight="bold" aria-hidden />
+          </Link>
+          <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
             Get directions
           </a>
           <Link href="/shop" className="btn btn-ghost">
@@ -136,7 +144,9 @@ export function CheckoutForm() {
         <div className="card p-6">
           <h2 className="display text-2xl">Order summary</h2>
           <ul className="mt-5 divide-y divide-line">
-            {lines.map(({ product, qty }) => (
+            {lines.map((line) => {
+              const { product, qty, price } = line;
+              return (
               <li key={product.slug} className="flex items-center gap-4 py-3">
                 <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-panel-2">
                   <Image src={product.image.src} alt="" fill sizes="56px" className="object-cover" />
@@ -144,10 +154,16 @@ export function CheckoutForm() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{product.name}</p>
                   <p className="text-xs text-fog">Qty {qty}</p>
+                  {line.problem && (
+                    <p className="mt-1 text-xs text-danger" role="alert">
+                      {problemText[line.problem](line)}
+                    </p>
+                  )}
                 </div>
-                <span className="font-mono text-sm tabular-nums">{money(product.price * qty)}</span>
+                <span className="font-mono text-sm tabular-nums">{money(price * qty)}</span>
               </li>
-            ))}
+              );
+            })}
           </ul>
           <div className="mt-4 flex items-baseline justify-between border-t border-line pt-4">
             <span className="text-fog">Total due at pickup</span>
@@ -159,7 +175,7 @@ export function CheckoutForm() {
               {serverError}
             </p>
           )}
-          <button type="submit" className="btn btn-primary mt-6 w-full" disabled={sending || !ready}>
+          <button type="submit" className="btn btn-primary mt-6 w-full" disabled={sending || !ready || hasProblems}>
             {sending ? <CircleNotch size={18} className="animate-spin" aria-hidden /> : null}
             {sending ? "Reserving…" : "Reserve for pickup"}
           </button>

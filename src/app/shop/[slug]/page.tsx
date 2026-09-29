@@ -1,21 +1,23 @@
 import { ArrowLeft, Check, MapPin, ShieldCheck, Storefront } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductCard, conditionStyle } from "@/components/shop/ProductCard";
+import { ProductCard, conditionStyle, productStatus } from "@/components/shop/ProductCard";
+import { ProductGallery } from "@/components/shop/ProductGallery";
 import { ProductPurchase } from "@/components/shop/ProductPurchase";
-import { money, productBySlug, products } from "@/content/products";
+import { cartSnapshot, money, PLACEHOLDER_IMAGE } from "@/content/products";
+import { getShopProducts } from "@/lib/catalog";
 import { site } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await getShopProducts()).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = productBySlug((await params).slug);
+  const { slug } = await params;
+  const product = (await getShopProducts()).find((p) => p.slug === slug);
   if (!product) return {};
   return {
     title: `${product.name} (${product.condition})`,
@@ -26,10 +28,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const product = productBySlug((await params).slug);
+  const { slug } = await params;
+  const live = await getShopProducts();
+  const product = live.find((p) => p.slug === slug);
   if (!product) notFound();
+  const status = productStatus(product);
 
-  const related = products.filter((p) => p.category === product.category && p.slug !== product.slug).slice(0, 4);
+  const related = live.filter((p) => p.category === product.category && p.slug !== product.slug).slice(0, 4);
   const conditionSchema = {
     New: "https://schema.org/NewCondition",
     Refurbished: "https://schema.org/RefurbishedCondition",
@@ -47,7 +52,7 @@ export default async function ProductPage({ params }: Props) {
       price: product.price,
       priceCurrency: "USD",
       itemCondition: conditionSchema,
-      availability: product.stock > 0 ? "https://schema.org/InStoreOnly" : "https://schema.org/OutOfStock",
+      availability: status === "available" ? "https://schema.org/InStoreOnly" : "https://schema.org/OutOfStock",
       url: `${site.url}/shop/${product.slug}`,
       seller: { "@id": `${site.url}/#business` },
     },
@@ -62,10 +67,11 @@ export default async function ProductPage({ params }: Props) {
         </Link>
 
         <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="hero-fade relative aspect-square overflow-hidden rounded-3xl border border-line bg-panel" style={{ "--d": "0s" } as React.CSSProperties}>
-            <Image src={product.image.src} alt={product.image.alt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-            <span className={`badge absolute top-4 left-4 backdrop-blur ${conditionStyle[product.condition]}`}>{product.condition}</span>
-          </div>
+          <ProductGallery
+            images={product.images.length ? product.images : [PLACEHOLDER_IMAGE]}
+            name={product.name}
+            badge={<span className={`badge absolute top-4 left-4 backdrop-blur ${conditionStyle[product.condition]}`}>{product.condition}</span>}
+          />
 
           <div className="hero-fade flex flex-col" style={{ "--d": "0.12s" } as React.CSSProperties}>
             <h1 className="display text-4xl sm:text-5xl lg:text-6xl">{product.name}</h1>
@@ -81,9 +87,15 @@ export default async function ProductPage({ params }: Props) {
             </ul>
 
             <div className="mt-8 border-t border-line pt-8">
-              <ProductPurchase slug={product.slug} stock={product.stock} />
-              <p className={`mt-3 text-sm ${product.stock > 0 ? "text-ok" : "text-fog"}`}>
-                {product.stock > 0 ? (product.stock <= 2 ? `Only ${product.stock} left in store` : "In stock at the shop") : "Currently sold out"}
+              <ProductPurchase product={cartSnapshot(product)} stock={product.stock} status={status} />
+              <p className={`mt-3 text-sm ${status === "available" ? "text-ok" : "text-fog"}`}>
+                {status === "available"
+                  ? product.stock <= 2
+                    ? `Only ${product.stock} left in store`
+                    : "In stock at the shop"
+                  : status === "reserved"
+                    ? "Currently reserved by another customer. Check back soon or call us."
+                    : "Currently out of stock"}
               </p>
             </div>
 

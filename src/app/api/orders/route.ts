@@ -1,7 +1,10 @@
-import { productBySlug } from "@/content/products";
-import { DB_OFFLINE_MESSAGE, sql } from "@/lib/db";
+import { revalidateTag } from "next/cache";
+import { DB_OFFLINE_MESSAGE, sql, transaction } from "@/lib/db";
 import { makeId } from "@/lib/ids";
+import { lockProducts, PRODUCTS_TAG } from "@/lib/catalog";
 import { badRequest, isEmail, readJson, text, usPhone, type Errors } from "@/lib/validate";
+
+const MAX_PER_ITEM = 5;
 
 export async function POST(req: Request) {
   const body = await readJson(req);
@@ -17,32 +20,55 @@ export async function POST(req: Request) {
   if (email && !isEmail(email)) errors.email = "Enter a valid email or leave it blank.";
   const notes = text(body.notes, 1000);
 
-  const rawItems = Array.isArray(body.items) ? body.items.slice(0, 30) : [];
-  const items = rawItems.flatMap((i: { slug?: unknown; qty?: unknown }) => {
-    const product = typeof i?.slug === "string" ? productBySlug(i.slug) : undefined;
+  // Merge duplicate lines so one product can't dodge the per-item cap across two lines.
+  const qtyBySlug = new Map<string, number>();
+  for (const i of Array.isArray(body.items) ? body.items.slice(0, 30) : []) {
+    const slug = typeof i?.slug === "string" ? i.slug.slice(0, 80) : "";
     const qty = Math.floor(Number(i?.qty));
-    if (!product || !(qty > 0)) return [];
-    return [{ slug: product.slug, name: product.name, condition: product.condition, price: product.price, qty, stock: product.stock }];
-  });
-  if (!items.length) errors.items = "Your cart is empty.";
-  const unavailable = items.find((i) => i.qty > Math.min(i.stock, 5));
-  if (unavailable) errors.items = `Only ${Math.min(unavailable.stock, 5)} of ${unavailable.name} can be reserved online.`;
+    if (slug && qty > 0) qtyBySlug.set(slug, (qtyBySlug.get(slug) ?? 0) + qty);
+  }
+  if (!qtyBySlug.size) errors.items = "Your cart is empty.";
+  const overCap = [...qtyBySlug].find(([, qty]) => qty > MAX_PER_ITEM);
+  if (overCap) errors.items = `You can reserve up to ${MAX_PER_ITEM} of each item online.`;
 
   if (Object.keys(errors).length) return badRequest(errors);
   if (!sql) return Response.json({ ok: false, error: DB_OFFLINE_MESSAGE }, { status: 503 });
 
-  const lineItems = items.map(({ stock: _stock, ...rest }) => rest);
-  const subtotal = lineItems.reduce((n, i) => n + i.price * i.qty, 0);
-  const id = makeId("ORD");
-
   try {
-    await sql`
-      INSERT INTO orders (id, name, phone, email, items, subtotal, notes)
-      VALUES (${id}, ${name}, ${phone}, ${email || null}, ${JSON.stringify(lineItems)}::jsonb, ${subtotal}, ${notes || null})`;
+    const result = await transaction(async (tx) => {
+      const stock = await lockProducts(tx, [...qtyBySlug.keys()]);
+
+      const unavailable: { slug: string; name: string; available: number }[] = [];
+      const lineItems = [...qtyBySlug].map(([slug, qty]) => {
+        const s = stock.get(slug);
+        // Unknown, deleted or archived products can't be reserved.
+        const available = s && s.inStock && !s.archived ? Math.max(0, s.quantity - s.held) : 0;
+        if (qty > available) unavailable.push({ slug, name: s?.name ?? "An item in your cart", available });
+        return { slug, name: s?.name ?? slug, condition: s?.condition ?? "", price: s?.price ?? 0, qty };
+      });
+      if (unavailable.length) return { ok: false as const, unavailable };
+
+      const subtotal = lineItems.reduce((n, i) => n + i.price * i.qty, 0);
+      const id = makeId("ORD");
+      await tx.query(
+        "INSERT INTO orders (id, name, phone, email, items, subtotal, notes) VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)",
+        [id, name, phone, email || null, JSON.stringify(lineItems), subtotal, notes || null],
+      );
+      return { ok: true as const, id, subtotal };
+    });
+
+    if (!result.ok) {
+      const names = result.unavailable.map((u) => (u.available ? `${u.name} (only ${u.available} left)` : u.name)).join(", ");
+      return Response.json(
+        { ok: false, error: `Just reserved by another customer or out of stock: ${names}. Update your cart and try again.`, unavailable: result.unavailable },
+        { status: 409 },
+      );
+    }
+
+    revalidateTag(PRODUCTS_TAG, { expire: 0 });
+    return Response.json(result);
   } catch (err) {
-    console.error("order insert failed", err);
+    console.error("order failed", err);
     return Response.json({ ok: false, error: "We couldn't save your order. Please try again or call us." }, { status: 500 });
   }
-
-  return Response.json({ ok: true, id, subtotal });
 }
